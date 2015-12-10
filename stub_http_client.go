@@ -2,11 +2,9 @@ package utils
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"testing"
 )
 
@@ -25,8 +23,6 @@ func NewStubHTTPClient(t *testing.T) *StubHTTPClient {
 
 func (s *StubHTTPClient) Verify() {
 	if !bytes.Equal(s.Expected, s.actual) {
-		spit("/tmp/expected", s.Expected)
-		spit("/tmp/actual", s.actual)
 		s.t.Errorf("expected:\n%sgot:\n%s", s.Expected, s.actual)
 	}
 }
@@ -43,18 +39,4 @@ func (s *StubHTTPClient) Post(uri, bodyType string, req io.Reader) (*http.Respon
 	}
 	res := &http.Response{Body: ioutil.NopCloser(bytes.NewBuffer(s.Response))}
 	return res, nil
-}
-
-func spit(path string, b []byte) {
-	file, err := os.Create(path)
-	if err != nil {
-		return
-	}
-
-	n, err := file.Write(b)
-	if err != nil {
-		return
-	}
-
-	fmt.Printf("%v bytes written to %s\n", n, path)
 }
